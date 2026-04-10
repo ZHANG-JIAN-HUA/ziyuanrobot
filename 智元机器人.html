@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智元机器人 · 具身智能 | zhiyuanrobot.com</title>
+    <style>
+        /* ===== 全局重置 & 科技感基底 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #050a10;
+            background-image: 
+                radial-gradient(circle at 15% 25%, rgba(20, 180, 220, 0.08) 0%, transparent 35%),
+                radial-gradient(circle at 85% 70%, rgba(0, 200, 200, 0.06) 0%, transparent 45%),
+                repeating-linear-gradient(45deg, rgba(0, 255, 255, 0.01) 0px, rgba(0, 255, 255, 0.01) 2px, transparent 2px, transparent 8px);
+            font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #e3f0fd;
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 200, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 200, 0.015) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1300px;
+            width: 100%;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* 光晕装饰 (移动端隐藏) */
+        .glow-cyan {
+            position: fixed;
+            width: 650px;
+            height: 650px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 210, 255, 0.08) 0%, rgba(0, 100, 150, 0.02) 70%, transparent 100%);
+            top: -150px;
+            right: -150px;
+            filter: blur(100px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .glow-purple {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(140, 80, 255, 0.05) 0%, transparent 75%);
+            bottom: -100px;
+            left: -100px;
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @media (max-width: 600px) {
+            .glow-cyan, .glow-purple { display: none; }
+        }
+
+        /* ===== 头部区域 ===== */
+        .header {
+            margin-bottom: 40px;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(0, 210, 255, 0.2);
+            padding-bottom: 20px;
+            flex-wrap: wrap;
+            backdrop-filter: blur(8px);
+        }
+
+        .brand h1 {
+            font-size: 3.2rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #ffffff 0%, #a0e0ff 45%, #7df9ff 80%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 25px rgba(0, 230, 250, 0.3);
+        }
+
+        .brand-sub {
+            display: flex;
+            gap: 24px;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #7fb4d4;
+        }
+
+        .domain-badge {
+            border: 1px solid #1a7a8c;
+            background: rgba(4, 45, 65, 0.6);
+            backdrop-filter: blur(12px);
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 400;
+            font-size: 1rem;
+            box-shadow: 0 0 18px rgba(0, 210, 255, 0.15);
+            color: #b3ecff;
+            letter-spacing: 1px;
+        }
+
+        .domain-badge i {
+            color: #0ff;
+            margin-right: 10px;
+            font-style: normal;
+        }
+
+        .topic-tag {
+            display: inline-block;
+            background: rgba(0, 200, 255, 0.08);
+            border: 1px solid #0cf;
+            padding: 4px 16px;
+            border-radius: 24px;
+            font-size: 0.85rem;
+            color: #b5e4ff;
+            backdrop-filter: blur(4px);
+        }
+
+        /* ===== 卡片网格 ===== */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1.2fr 0.9fr;
+            gap: 28px;
+            margin: 30px 0;
+        }
+
+        .card {
+            background: rgba(2, 18, 30, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 180, 220, 0.2);
+            border-radius: 32px;
+            padding: 28px 26px;
+            box-shadow: 0 25px 40px -15px #000000b3, 0 0 0 0.5px rgba(0, 255, 255, 0.1) inset;
+            transition: transform 0.2s ease, border-color 0.2s;
+        }
+
+        .card:hover {
+            border-color: rgba(0, 220, 255, 0.5);
+            transform: translateY(-4px);
+            box-shadow: 0 30px 50px -15px #000, 0 0 20px rgba(0, 200, 255, 0.2) inset;
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 5px solid #0cf;
+            padding-left: 18px;
+            background: linear-gradient(90deg, rgba(0, 200, 255, 0.1) 0%, transparent 80%);
+        }
+
+        .card-title span {
+            font-size: 1rem;
+            color: #5eb0d9;
+            margin-left: auto;
+        }
+
+        .data-row {
+            display: flex;
+            margin-bottom: 18px;
+            border-bottom: 1px dashed #145a7a;
+            padding-bottom: 14px;
+        }
+
+        .data-label {
+            width: 100px;
+            font-weight: 400;
+            color: #7fc3e0;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+
+        .data-value {
+            flex: 1;
+            font-weight: 500;
+            color: #def3ff;
+        }
+
+        .highlight {
+            color: #7df9ff;
+            font-weight: 600;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .feature-list li::before {
+            content: "▹";
+            color: #0cf;
+            font-size: 1.3rem;
+        }
+
+        /* 科技进度条 */
+        .stats-bar {
+            margin-top: 25px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        .stat-name {
+            width: 120px;
+            color: #aad4f0;
+            flex-shrink: 0;
+        }
+
+        .bar-bg {
+            flex: 1;
+            height: 8px;
+            background: #0a2a3f;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 0 12px;
+            box-shadow: inset 0 2px 5px #00000080;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 20px;
+            background: linear-gradient(90deg, #00c8ff, #5ee4ff, #a8c0ff);
+            box-shadow: 0 0 15px #00e0ff;
+            width: 0%;
+        }
+
+        .stat-percent {
+            min-width: 48px;
+            text-align: right;
+            font-weight: 600;
+            color: #c0ebff;
+        }
+
+        /* 引语卡片 */
+        .quote-block {
+            background: rgba(0, 40, 60, 0.5);
+            padding: 22px;
+            border-radius: 24px;
+            margin-top: 18px;
+            border: 1px solid #0c7e9c;
+        }
+
+        .quote-block p {
+            font-size: 1.1rem;
+            font-style: italic;
+            margin-bottom: 16px;
+            color: #cef0ff;
+        }
+
+        .small-note {
+            color: #7faec9;
+            font-size: 0.9rem;
+        }
+
+        /* 媒体热点卡片 */
+        .media-featured {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 30px 0 15px;
+        }
+
+        .media-card {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(0, 30, 50, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid #1b7a9e;
+            border-radius: 24px;
+            padding: 18px;
+        }
+
+        .media-icon {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 8px cyan);
+        }
+
+        .media-title {
+            font-weight: 600;
+            color: #b3e4ff;
+        }
+
+        .media-desc {
+            color: #aacce6;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        /* ===== 底部个人/域名信息 ===== */
+        .profile-section {
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .profile-card {
+            background: rgba(0, 15, 25, 0.4);
+            backdrop-filter: blur(25px);
+            border: 1px solid #0c9ec7;
+            border-radius: 60px;
+            padding: 18px 36px;
+            display: inline-flex;
+            align-items: center;
+            gap: 40px;
+            box-shadow: 0 15px 35px -10px #000000cc, 0 0 30px #00668833;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .profile-name {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .name-icon {
+            width: 44px;
+            height: 44px;
+            background: #07455f;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #0cf;
+            box-shadow: 0 0 18px #0cf;
+            font-weight: bold;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .name-text {
+            font-size: 1.8rem;
+            font-weight: 300;
+            background: linear-gradient(135deg, #fff, #b2ecff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .wechat-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(0, 110, 150, 0.35);
+            padding: 8px 26px;
+            border-radius: 50px;
+            border: 1px solid #0cf;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .wechat-badge:active {
+            background: rgba(0, 160, 220, 0.6);
+            transform: scale(0.98);
+        }
+
+        .wechat-badge span {
+            color: #d6f2ff;
+            font-family: 'SF Mono', monospace;
+            font-size: 1.2rem;
+            letter-spacing: 1.5px;
+        }
+
+        .copy-symbol {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .wechat-badge:hover .copy-symbol {
+            opacity: 1;
+        }
+
+        .domain-hint {
+            font-size: 1.1rem;
+            color: #b0e0ff;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .domain-hint::before {
+            content: "🌐";
+            filter: drop-shadow(0 0 6px cyan);
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            text-align: center;
+            opacity: 0.7;
+            font-size: 0.85rem;
+            color: #8cb3d4;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 800px) {
+            .grid-2col {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .header-top {
+                flex-direction: column;
+                align-items: start;
+                gap: 15px;
+            }
+            .profile-card {
+                border-radius: 30px;
+                gap: 20px;
+                padding: 16px 24px;
+            }
+            .brand h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 12px; }
+            .brand h1 { font-size: 2rem; }
+            .brand-sub { gap: 10px; font-size: 0.7rem; }
+            .card-title { font-size: 1.5rem; }
+            .data-label { width: 80px; font-size: 0.85rem; }
+            .stat-name { width: 90px; font-size: 0.85rem; }
+            .name-text { font-size: 1.4rem; }
+            .wechat-badge span { font-size: 1rem; }
+            .domain-hint { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-cyan"></div>
+    <div class="glow-purple"></div>
+
+    <div class="container">
+        <!-- 头部：智元机器人 + 域名展示 -->
+        <div class="header">
+            <div class="header-top">
+                <div class="brand">
+                    <h1>AGIBOT · 智元机器人</h1>
+                    <div class="brand-sub">
+                        <span>具身智能引领者</span>
+                        <span>|</span>
+                        <span>人形机器人 · 通用人工智能</span>
+                    </div>
+                </div>
+                <div class="domain-badge">
+                    <i>🌍</i> zhiyuanrobot.com
+                </div>
+            </div>
+            <!-- 热点话题 & 生态社区 -->
+            <div style="display: flex; align-items: center; gap: 16px; margin-top: 22px; flex-wrap: wrap;">
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <span class="topic-tag">#智元机器人</span>
+                    <span class="topic-tag" style="background: #0f4a5e30; border-color: #0cf;">🤖 智元开发者社区</span>
+                    <span class="topic-tag">@Agibot·抖音</span>
+                </div>
+                <div style="margin-left: auto; color: #7fd4ff; font-size: 0.95rem;">
+                    <span>🔥 全球首发：智元远征A2人形机器人实现通用操作，量产在即</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 两列核心内容 -->
+        <div class="grid-2col">
+            <!-- 左侧：生态/社区 & 关键数据 -->
+            <div class="card">
+                <div class="card-title">
+                    智元·具身生态
+                    <span>✨ 开源社区</span>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">核心社群</div>
+                    <div class="data-value"><span class="highlight">“智元极客联盟”</span> — 超过15万开发者，共建具身智能开源生态</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">最新动态</div>
+                    <div class="data-value">智元发布通用操作大模型GO-1，机器人可自主完成复杂长序列任务</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">生态合作</div>
+                    <div class="data-value">与比亚迪、宁德时代等头部企业共建工厂实训场景，加速商业化落地</div>
+                </div>
+                
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-name">操作成功率</span>
+                        <div class="bar-bg"><div class="bar-fill" style="width: 96%;"></div></div>
+                        <span class="stat-percent">96%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-name">全身自由度</span>
+                        <div class="bar-bg"><div class="bar-fill" style="width: 78%;"></div></div>
+                        <span class="stat-percent">49 DoF</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-name">开发者增速</span>
+                        <div class="bar-bg"><div class="bar-fill" style="width: 94%;"></div></div>
+                        <span class="stat-percent">+230%</span>
+                    </div>
+                </div>
+
+                <div class="quote-block">
+                    <p>“智元机器人的使命是打造通用具身智能，让机器人成为人类生产力的延伸。从实验室到工厂，我们正加速这一进程。”</p>
+                    <div class="small-note">—— 智元机器人 · 2026 具身智能峰会</div>
+                </div>
+            </div>
+
+            <!-- 右侧：技术内核 & 应用场景 -->
+            <div class="card">
+                <div class="card-title">
+                    智元核心科技
+                    <span>⚙️ AgiBrain</span>
+                </div>
+                <ul class="feature-list">
+                    <li>智元具身大模型GO-1 · 多模态感知+决策，实现长序列任务泛化</li>
+                    <li>自研高性能关节 · 峰值扭矩360Nm，力控精度0.1N，支持柔顺控制</li>
+                    <li>灵巧手 · 12个主动自由度，可完成抓取、拧瓶盖等精细操作</li>
+                    <li>云端超脑平台 · 数据飞轮持续进化，越用越聪明</li>
+                    <li>开源操作系统AgiOS · 兼容ROS2，提供丰富API与仿真环境</li>
+                </ul>
+                <div style="margin-top: 24px; padding: 12px 0;">
+                    <span style="background: #003b4f; padding: 6px 16px; border-radius: 30px; border:1px solid #0cf;">📡 热点：智元远征A2在汽车总装车间实训，可替代部分重复性人力工作</span>
+                </div>
+                <!-- 媒体/应用卡片 -->
+                <div class="media-featured">
+                    <div class="media-card">
+                        <div class="media-icon">🏭</div>
+                        <div class="media-title">#工业制造</div>
+                        <div class="media-desc">智元机器人在3C、汽车产线执行装配、检测、物料搬运任务。</div>
+                    </div>
+                    <div class="media-card">
+                        <div class="media-icon">🧪</div>
+                        <div class="media-title">#科研教育</div>
+                        <div class="media-desc">开源人形平台助力高校与科研机构开展具身智能前沿研究。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第三行：里程碑与全球化 -->
+        <div style="display: flex; gap: 24px; flex-wrap: wrap; margin: 24px 0 16px;">
+            <div style="flex: 2; min-width: 260px; background: rgba(0, 35, 50, 0.5); backdrop-filter: blur(12px); border-radius: 28px; padding: 24px; border: 1px solid #0c7b9e;">
+                <h3 style="font-size: 1.6rem; margin-bottom: 10px; color: #a3e0ff;">智元 · 进化里程碑</h3>
+                <p style="color: #b3dcf5;">2024年推出首款全尺寸人形机器人远征A1；2025年发布具身大模型GO-1；2026年远征A2开启量产交付，累计获得超5000台意向订单。</p>
+            </div>
+            <div style="flex: 1.2; background: rgba(0,0,0,0.2); backdrop-filter: blur(12px); border-radius: 28px; padding: 24px; border: 1px solid #00a8cc40;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span style="font-size: 2.5rem;">🦾</span>
+                    <span style="font-weight: 500;">远征 A2 系列 · 通用人形<br>机器人平台</span>
+                </div>
+                <div style="margin-top: 18px; color: #b5e2ff;">身高175cm · 负载10kg/臂 · 开放API</div>
+            </div>
+        </div>
+
+        <!-- 底部：个人信息 + 域名购买提示 (张健华 & 微信号) -->
+        <div class="profile-section">
+            <div class="profile-card">
+                <div class="profile-name">
+                    <div class="name-icon">张</div>
+                    <div class="name-text">张健华</div>
+                </div>
+                <div style="width: 1px; height: 30px; background: #0a7a9c;"></div>
+                <!-- 微信号复制区 -->
+                <div class="wechat-badge" id="wechatCopyBtn" data-wechat="ZHANG_JIANHUA_WX">
+                    <span>📱 微信号：ZHANG_JIANHUA_WX</span>
+                    <span class="copy-symbol">📋</span>
+                </div>
+                <div style="color: #9ac9e5; font-size: 0.95rem; display: flex; gap: 5px;">
+                    <span>🔗 域名/商务合作</span>
+                </div>
+            </div>
+            <div class="domain-hint">
+                zhiyuanrobot.com · 智元机器人官方域 ｜ 微信联系: ZHANG_JIANHUA_WX
+            </div>
+            <div class="footer-note">
+                ⚡ 智元机器人 · 具身智能引领者 · 让机器人成为人类伙伴 ⚡<br>
+                © 2026 ZhiYuanRobot · 域名持有者 张健华
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            console.log("🤖 智元机器人 · zhiyuanrobot.com | 张健华 · 微信号 ZHANG_JIANHUA_WX (点击复制)");
+
+            const copyBtn = document.getElementById('wechatCopyBtn');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    let wechatId = copyBtn.getAttribute('data-wechat') || 'ZHANG_JIANHUA_WX';
+                    try {
+                        await navigator.clipboard.writeText(wechatId);
+                        const originalHTML = copyBtn.innerHTML;
+                        copyBtn.innerHTML = '<span>✅ 微信号已复制</span><span class="copy-symbol">✔️</span>';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalHTML;
+                        }, 2000);
+                    } catch (err) {
+                        const textarea = document.createElement('textarea');
+                        textarea.value = wechatId;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                        alert('微信号已复制: ' + wechatId);
+                    }
+                });
+            }
+
+            const domainBadge = document.querySelector('.domain-badge');
+            if(domainBadge) {
+                domainBadge.style.cursor = 'default';
+            }
+        })();
+    </script>
+</body>
+</html>
